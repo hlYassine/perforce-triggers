@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "perforce-triggers"
+version = "0.1.0"
+description = "submit and deploy perforce triggers to perforce server."
+authors = ["yhlioui <hlioui.yassine@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+p4python = "^2021.1.2128019"
+
+[tool.poetry.dev-dependencies]
+pytest = ">=5.0"
+black = "^21.9b0"
+pytest-cov = "^2.12.1"
+pytest-mock = "^3.6.1"
+pylint = "^2.11.1"
+mypy = "^0.910"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
