@@ -12,7 +12,7 @@ CONFIG_FILE_RELPATH = "perforce_triggers/config.json"
 LOG_FILE_RELPATH = "perforce_triggers/log.txt"
 
 
-config_dict = {
+DEBUG_CONFIG = {
     "auth": {
         "p4_port": "perforce:1666",
         "p4_user": "perforce",
@@ -33,16 +33,11 @@ config_dict = {
 
 
 def get_config() -> typing.Dict:
-    if __debug__:
-        return config_dict
-
     config_abspath = get_config_abspath()
     if path.exists(config_abspath):
         with open(config_abspath, "r", encoding="utf-8") as fd:
-            return dict(json.loads(fd.read()))
-    raise exceptions.PerforceTriggersError(
-        f"Could not find config file '{config_abspath}'!"
-    )
+            return dict(json.load(fd))
+    return DEBUG_CONFIG
 
 
 def get_config_abspath() -> str:
