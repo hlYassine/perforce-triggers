@@ -13,12 +13,12 @@ LOG_FILE_RELPATH = "perforce_triggers/log.txt"
 
 
 config_dict = {
-    "auth" : {
+    "auth": {
         "p4_port": "perforce:1666",
         "p4_user": "perforce",
         "p4_tickets": "/home/perforce/.p4tickets"
     },
-    "triggers": [ 
+    "triggers": [
         {
             "name": "my_trigger",
             "type": "script",
@@ -37,28 +37,31 @@ def get_config() -> typing.Dict:
         return config_dict
 
     config_abspath = get_config_abspath()
-    if path.exists(get_config_abspath):
-        with open(config_dict) as fd:
-            return json.loads(fd.read())
+    if path.exists(config_abspath):
+        with open(config_abspath, "r", encoding="utf-8") as fd:
+            return dict(json.loads(fd.read()))
     raise exceptions.PerforceTriggersError(
         f"Could not find config file '{config_abspath}'!"
     )
-    
+
 
 def get_config_abspath() -> str:
     if platform.system() == "Linux":
         return path.join("/etc", CONFIG_FILE_RELPATH)
 
     if platform.system() == "Windows":
-        return path.join(getenv('APPDATA'), CONFIG_FILE_RELPATH)
+        return path.join(str(getenv("APPDATA")), CONFIG_FILE_RELPATH)
 
-    raise exceptions.PerforceTriggersError(f"unsupported platform '{platform.system()}'!")
+    raise exceptions.PerforceTriggersError(
+        f"unsupported platform '{platform.system()}'!")
+
 
 def get_log_dir() -> str:
     if platform.system() == "Linux":
         return "/etc/perforce_triggers"
-    
+
     if platform.system() == "Windows":
-        return path.join(getenv('APPDATA'), "perforce_triggers")
-    
-    raise exceptions.PerforceTriggersError(f"unsupported platform '{platform.system()}'!")
+        return path.join(str(getenv("APPDATA")), "perforce_triggers")
+
+    raise exceptions.PerforceTriggersError(
+        f"unsupported platform '{platform.system()}'!")

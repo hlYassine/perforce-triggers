@@ -12,7 +12,6 @@ def setup_logging(level):
     )
 
     # log file handler
-    config_ = config.get_config()
     log_dir_abspath = config.get_log_dir()
     if not path.exists(log_dir_abspath):
         makedirs(log_dir_abspath, exist_ok=True)
@@ -28,6 +27,7 @@ def main():
     log.info("Starting perforce-triggers program")
     config_ = config.get_config()
     log.info(config_)
+
 
 if __name__ == "__main__":
     main()
