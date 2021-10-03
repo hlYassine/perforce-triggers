@@ -1,3 +1,4 @@
+import pytest
 from perforce_triggers import config, exceptions
 
 
@@ -24,3 +25,39 @@ def test_get_config(mocker):
     assert config_ == debug_config_
 
 
+def test_get_config_abspath(mocker):
+    # Windows
+    mocker.patch("platform.system", return_value="Windows")
+    mocker.patch("os.environ", {"APPDATA": "C:/appdata"})
+    expected = "C:/appdata/perforce_triggers/config.json"
+    assert config.get_config_abspath() == expected
+
+    # Linux
+    mocker.patch("platform.system", return_value="Linux")
+    expected = "/etc/perforce_triggers/config.json"
+    assert config.get_config_abspath() == expected
+
+    # Unsupported platform
+    mocker.patch("platform.system", return_value="Unknown")
+    with pytest.raises(exceptions.PerforceTriggersError) as e:
+        config.get_config_abspath()
+    assert "unsupported platform" in str(e)
+
+
+def test_get_log_dir(mocker):
+    # Windows
+    mocker.patch("platform.system", return_value="Windows")
+    mocker.patch("os.environ", {"APPDATA": "C:/appdata"})
+    expected = "C:/appdata/perforce_triggers"
+    assert config.get_log_dir() == expected
+
+    # Linux
+    mocker.patch("platform.system", return_value="Linux")
+    expected = "/etc/perforce_triggers"
+    assert config.get_log_dir() == expected
+
+    # Unsupported platform
+    mocker.patch("platform.system", return_value="Unknown")
+    with pytest.raises(exceptions.PerforceTriggersError) as e:
+        config.get_log_dir()
+    assert "unsupported platform" in str(e)
