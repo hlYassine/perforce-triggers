@@ -1,5 +1,4 @@
 from perforce_triggers import triggers
-from perforce_triggers.triggers import trigger
 
 
 class TestScriptTrigger:
