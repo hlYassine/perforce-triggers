@@ -1,4 +1,10 @@
 import typing
+import logging
+
+from perforce_triggers import config
+from perforce_triggers import exceptions
+
+log = logging.getLogger(__name__)
 
 TRIGGERS = {}
 
@@ -83,3 +89,25 @@ class CommandTrigger(Trigger):
                 event=self.event,
                 script=self.script)
         ]
+
+
+def get_triggers() -> typing.List[Trigger]:
+    config_ = config.get_config()
+    trigger_config_list = config_.get("triggers", [])
+    trigger_list = []
+    for trigger_info in trigger_config_list:
+        try:
+            trigger_attrs = {
+                attr: trigger_info[attr]
+                for attr in trigger_info
+                if attr != "type"
+            }
+            trigger_type = trigger_info["type"]
+            trigger_list.append(
+                TRIGGERS[trigger_type](**trigger_attrs)
+            )
+        except KeyError as error_:
+            raise exceptions.PerforceTriggersError(
+                f"Unsupported trigger type '{trigger_type}'"
+            ) from error_
+    return trigger_list
