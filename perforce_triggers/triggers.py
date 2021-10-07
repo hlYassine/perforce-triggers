@@ -51,6 +51,11 @@ class ScriptTrigger(Trigger):
         self.include_paths = include_paths
         self.exclude_paths = exclude_paths if exclude_paths else []
 
+    def __eq__(self, obj) -> bool:
+        if not isinstance(obj, self.__class__):
+            return False
+        return self.__dict__ == obj.__dict__
+
     def get_p4_trigger_lines(self) -> typing.List[str]:
         inc_script_trigger_tpl = '{name} {event} {p4_path} "{script}"'
         exc_script_trigger_tpl = '{name} {event} -{p4_path} "{script}"'
