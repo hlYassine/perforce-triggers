@@ -1,5 +1,7 @@
 import pytest
 
+from copy import deepcopy
+
 from perforce_triggers import triggers
 from perforce_triggers import exceptions
 
@@ -34,6 +36,21 @@ test_command_trigger = triggers.CommandTrigger(
 )
 raise_exception = True
 no_exception = False
+
+
+class TestTrigger:
+    def test_equal(self):
+        # not instances of the same class
+        assert not test_command_trigger == test_script_trigger
+
+        # equal objects of same instance class
+        test_script_trigger_copy = deepcopy(test_script_trigger)
+        assert test_script_trigger_copy == test_script_trigger
+
+        # different objects of same instance class
+        test_script_trigger_copy2 = deepcopy(test_script_trigger)
+        test_script_trigger_copy2.name = "trigger_3"
+        assert not test_script_trigger_copy2 == test_script_trigger
 
 
 class TestScriptTrigger:
