@@ -83,6 +83,7 @@ There are 2 types of triggers :
             "command": "/usr/bin/python3.6 %//triggers/on_submit.py%",
             "args": ["--verbose", "--notify", "frontend-coders@app.com"]
         },
+    ]
 }
 ```
 The config above would add the following lines to `perforce` trigger list:
@@ -90,7 +91,6 @@ The config above would add the following lines to `perforce` trigger list:
 ```
 Triggers:
     my_trigger change-commit //depot/frontend/... "/usr/bin/python3.6 %//triggers/on_submit.py% --verbose --notify frontend-coders@app.com"
-
     my_trigger change-commit -//depot/backend/... "/usr/bin/python3.6 %//triggers/on_submit.py% --verbose --notify frontend-coders@app.com"
 ```
 
@@ -114,6 +114,7 @@ Triggers:
             "command": "/usr/bin/python3.6 %//triggers/on_sync.py%",
             "args": ["--quit"]
         },
+    ]
 }
 ```
 
