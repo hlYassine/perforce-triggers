@@ -1,4 +1,56 @@
+import pytest
+
+from copy import deepcopy
+
 from perforce_triggers import triggers
+from perforce_triggers import exceptions
+
+
+trigger_script_data = {
+    "name": "trigger_1",
+    "type": "script",
+    "event": "change-commit",
+    "include_paths": ["//path/..."],
+    "command": "python3 %//trigger/main.py%",
+}
+
+command_script_data = {
+    "name": "trigger_2",
+    "type": "command",
+    "event": "pre-user-move",
+    "command": "python3 %//trigger/main_2.py%",
+}
+
+test_script_trigger = triggers.ScriptTrigger(
+    "trigger_1",
+    "change-commit",
+    ["//path/..."],
+    "python3 %//trigger/main.py%"
+)
+
+test_command_trigger = triggers.CommandTrigger(
+    "trigger_2",
+     "pre-user-move",
+      "python3 %//trigger/main_2.py%"
+
+)
+raise_exception = True
+no_exception = False
+
+
+class TestTrigger:
+    def test_equal(self):
+        # not instances of the same class
+        assert not test_command_trigger == test_script_trigger
+
+        # equal objects of same instance class
+        test_script_trigger_copy = deepcopy(test_script_trigger)
+        assert test_script_trigger_copy == test_script_trigger
+
+        # different objects of same instance class
+        test_script_trigger_copy2 = deepcopy(test_script_trigger)
+        test_script_trigger_copy2.name = "trigger_3"
+        assert not test_script_trigger_copy2 == test_script_trigger
 
 
 class TestScriptTrigger:
@@ -94,3 +146,40 @@ class TestCommandTrigger:
 
         res = test_command_trigger.get_p4_trigger_lines()
         assert expected == res
+
+
+@pytest.mark.parametrize(
+    "trigger_config, expected, raise_exception",
+    [
+        (
+            [trigger_script_data],
+            [test_script_trigger],
+            no_exception
+        ),
+        (
+            [ trigger_script_data, command_script_data],
+            [test_script_trigger, test_command_trigger],
+            no_exception
+        ),
+        (
+            [
+                {
+                    "name": "trigger_1",
+                    "type": "something"
+                }
+            ],
+            [],
+            raise_exception
+        ),
+    ],
+)
+def test_get_triggers(trigger_config, expected, raise_exception, mocker):
+    mocker.patch("perforce_triggers.config.get_config", return_value={
+            "triggers": trigger_config
+        })
+    if raise_exception:
+        with pytest.raises(exceptions.PerforceTriggersError):
+            triggers.get_triggers()
+    else:
+        res = triggers.get_triggers()
+        assert all(trigger_ in expected for trigger_ in res)

@@ -1,4 +1,10 @@
 import typing
+import logging
+
+from perforce_triggers import config
+from perforce_triggers import exceptions
+
+log = logging.getLogger(__name__)
 
 TRIGGERS = {}
 
@@ -26,6 +32,11 @@ class Trigger:
 
     def get_p4_trigger_lines(self) -> typing.List[str]:
         raise NotImplementedError
+
+    def __eq__(self, obj) -> bool:
+        if not isinstance(obj, self.__class__):
+            return False
+        return self.__dict__ == obj.__dict__
 
 
 @trigger
@@ -83,3 +94,25 @@ class CommandTrigger(Trigger):
                 event=self.event,
                 script=self.script)
         ]
+
+
+def get_triggers() -> typing.List[Trigger]:
+    config_ = config.get_config()
+    trigger_config_list = config_.get("triggers", [])
+    trigger_list = []
+    for trigger_info in trigger_config_list:
+        try:
+            trigger_attrs = {
+                attr: trigger_info[attr]
+                for attr in trigger_info
+                if attr != "type"
+            }
+            trigger_type = trigger_info["type"]
+            trigger_list.append(
+                TRIGGERS[trigger_type](**trigger_attrs)
+            )
+        except KeyError as error_:
+            raise exceptions.PerforceTriggersError(
+                f"Unsupported trigger type '{trigger_type}'"
+            ) from error_
+    return trigger_list
