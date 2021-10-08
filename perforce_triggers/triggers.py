@@ -33,6 +33,11 @@ class Trigger:
     def get_p4_trigger_lines(self) -> typing.List[str]:
         raise NotImplementedError
 
+    def __eq__(self, obj) -> bool:
+        if not isinstance(obj, self.__class__):
+            return False
+        return self.__dict__ == obj.__dict__
+
 
 @trigger
 class ScriptTrigger(Trigger):
@@ -50,11 +55,6 @@ class ScriptTrigger(Trigger):
         super().__init__(name, event, command, args)
         self.include_paths = include_paths
         self.exclude_paths = exclude_paths if exclude_paths else []
-
-    def __eq__(self, obj) -> bool:
-        if not isinstance(obj, self.__class__):
-            return False
-        return self.__dict__ == obj.__dict__
 
     def get_p4_trigger_lines(self) -> typing.List[str]:
         inc_script_trigger_tpl = '{name} {event} {p4_path} "{script}"'
