@@ -1,11 +1,10 @@
+# Contributors
+
+This is the list of people who contributed to the `perforce-triggerrs` project.
 
 
-This is the list of people who contributed to the `perforce-triggerrs` project. In order, they joined:
+## Contributors in order
 
-
-Authors
--------
-
-+ Yassine Hlioui
-  (Github profile: https://github.com/hlyassine/)
-Developer and current maintainer fo the project.
+- Yassine Hlioui:
+  - github user: [hlyassine](https://github.com/hlyassine/)
+  - Role: Developer and current maintainer fo the project.
