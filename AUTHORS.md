@@ -1,6 +1,6 @@
 # Contributors
 
-This is the list of people who contributed to the `perforce-triggerrs` project.
+This is the list of people who contributed to `perforce-triggerrs` project.
 
 
 ## Contributors in order
