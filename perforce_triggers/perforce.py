@@ -7,7 +7,7 @@ from perforce_triggers import config
 from perforce_triggers import exceptions
 
 
-def connect_to_perforce() -> P4:
+def get_perforce_connection() -> P4:
     try:
         auth_config = config.get_config()["auth"]
         environ["P4TICKETS"] = auth_config["p4_tickets"]
@@ -33,7 +33,7 @@ def connect_to_perforce() -> P4:
 
 def get_triggers() -> typing.Optional[typing.List[str]]:
     try:
-        p4_conn = connect_to_perforce()
+        p4_conn = get_perforce_connection()
         p4_triggers_output = p4_conn.run_triggers("-o")
         return (
             p4_triggers_output[0].get("Triggers", [])

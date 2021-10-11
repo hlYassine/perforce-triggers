@@ -4,13 +4,13 @@ from P4 import P4Exception
 from perforce_triggers import perforce, exceptions
 
 
-def test_connect_to_perforce(mocker):
+def test_get_perforce_connection(mocker):
     # Incorrect configuration
     config_ = {}
     mocker.patch("perforce_triggers.config.get_config", return_value=config_)
 
     with pytest.raises(exceptions.PerforceTriggersError) as error_:
-        perforce.connect_to_perforce()
+        perforce.get_perforce_connection()
     assert "perforce login details are not configured correctly!" in str(error_)
 
     # missing p4 tickets path
@@ -24,7 +24,7 @@ def test_connect_to_perforce(mocker):
     mocker.patch("perforce_triggers.config.get_config", return_value=config_)
 
     with pytest.raises(exceptions.PerforceTriggersError) as error_:
-        perforce.connect_to_perforce()
+        perforce.get_perforce_connection()
     assert "perforce login details are not configured correctly!" in str(error_)
 
     # connection error
@@ -43,7 +43,7 @@ def test_connect_to_perforce(mocker):
     mocker.patch("P4.P4", new=P4Mock())
     
     with pytest.raises(exceptions.PerforceTriggersError) as error_:
-        perforce.connect_to_perforce()
+        perforce.get_perforce_connection()
     assert "Failed to connect to perforce server 'perforce:1666' as user 'jdoe'" in str(error_)
 
 
@@ -55,7 +55,7 @@ def test_get_triggers(mocker):
             return triggers_output
     
     # no triggers
-    mocker.patch("perforce_triggers.perforce.connect_to_perforce", return_value=P4Mock())
+    mocker.patch("perforce_triggers.perforce.get_perforce_connection", return_value=P4Mock())
     assert perforce.get_triggers() == []
 
     # trigger list
@@ -63,7 +63,7 @@ def test_get_triggers(mocker):
     assert perforce.get_triggers() == ["some trigger"]
 
     # exception
-    mocker.patch("perforce_triggers.perforce.connect_to_perforce", side_effect=P4Exception("failed to connect"))
+    mocker.patch("perforce_triggers.perforce.get_perforce_connection", side_effect=P4Exception("failed to connect"))
 
     with pytest.raises(exceptions.PerforceTriggersError) as error_:
         perforce.get_triggers()
