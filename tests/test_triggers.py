@@ -179,7 +179,7 @@ def test_get_triggers(trigger_config, expected, raise_exception, mocker):
         })
     if raise_exception:
         with pytest.raises(exceptions.PerforceTriggersError):
-            triggers.get_triggers()
+            triggers.get_triggers_from_config()
     else:
-        res = triggers.get_triggers()
+        res = triggers.get_triggers_from_config()
         assert all(trigger_ in expected for trigger_ in res)
