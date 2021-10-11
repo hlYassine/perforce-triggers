@@ -96,7 +96,7 @@ class CommandTrigger(Trigger):
         ]
 
 
-def get_triggers() -> typing.List[Trigger]:
+def get_triggers_from_config() -> typing.List[Trigger]:
     config_ = config.get_config()
     trigger_config_list = config_.get("triggers", [])
     trigger_list = []
