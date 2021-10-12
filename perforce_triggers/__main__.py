@@ -1,6 +1,7 @@
 import logging
 from os import path, makedirs
 from perforce_triggers import config
+from perforce_triggers import cli
 
 log = logging.getLogger(__name__)
 
@@ -24,9 +25,7 @@ def setup_logging(level):
 
 def main():
     setup_logging(logging.INFO)
-    log.info("Starting perforce-triggers program")
-    config_ = config.get_config()
-    log.info(config_)
+    cli.cli()
 
 
 if __name__ == "__main__":
