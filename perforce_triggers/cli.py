@@ -38,7 +38,7 @@ def list_triggers(trigger_location):
 @argument(
     "configuration",
     nargs=1,
-    type=click.Choice(["auth", "triggers"])
+    type=click.Choice(["auth", "location"])
 )
 @argument(
     "fields",
