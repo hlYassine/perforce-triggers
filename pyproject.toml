@@ -7,6 +7,7 @@ authors = ["yhlioui <hlioui.yassine@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.7"
 p4python = "^2021.1.2128019"
+types-setuptools = "^57.4.2"
 
 [tool.poetry.dev-dependencies]
 pytest = ">=5.0"
