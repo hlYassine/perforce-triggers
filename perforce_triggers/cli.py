@@ -5,9 +5,12 @@ from click.decorators import argument
 from perforce_triggers import perforce
 from perforce_triggers import triggers
 from perforce_triggers import config
+from perforce_triggers import __version__
 
 
 @click.group()
+@click.version_option(__version__)
+@click.pass_context
 def cli():
     pass
 
