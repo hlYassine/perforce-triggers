@@ -1,10 +1,13 @@
 import typing
+import logging
 
 from os import environ
 from P4 import P4, P4Exception
 
 from perforce_triggers import config
 from perforce_triggers import exceptions
+
+log = logging.getLogger(__name__)
 
 
 def get_perforce_connection() -> P4:
@@ -28,6 +31,22 @@ def get_perforce_connection() -> P4:
         raise exceptions.PerforceTriggersError(
             f"Failed to connect to perforce server '{auth_config['p4_port']}' "
             f"as user '{auth_config['p4_user']}'!\nerror: {p4_error}"
+        )
+
+
+def create_local_client(name, root_abspath, view_list):
+    p4_conn = get_perforce_connection()
+    client = p4_conn.fetch_client(name)
+    client["Root"] = root_abspath
+    client["Options"] = "allwrite clobber nocompress unlocked modtime rmdir"
+    client["View"] = view_list
+    client["Host"] = ""
+    client["LineEnd"] = "local"
+    try:
+        p4_conn.save_client(client)
+    except P4Exception as e:
+        raise exceptions.PerforceTriggersError(
+            f"Failed to create client '{name}':\n{e.value}"
         )
 
 
