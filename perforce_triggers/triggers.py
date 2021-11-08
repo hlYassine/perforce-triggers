@@ -3,6 +3,7 @@ import logging
 
 from perforce_triggers import config
 from perforce_triggers import exceptions
+from perforce_triggers import perforce
 
 log = logging.getLogger(__name__)
 
@@ -116,3 +117,20 @@ def get_triggers_from_config() -> typing.List[Trigger]:
                 f"Unsupported trigger type '{trigger_type}'"
             ) from error_
     return trigger_list
+
+
+def submit_triggers():
+    location_config = config.get_config().get("location", {})
+    client_name = "p4_triggers"
+    location_view_line = f"{location_config.get('local')} //{client_name}/..."
+    try:
+        with perforce.get_triggers_client() as p4_conn:
+            sync_p4_path = f"//{p4_conn.client}/..."
+            p4_conn.run_sync("-k", sync_p4_path)
+            p4_conn.run_sync("-k", sync_p4_path)
+
+            perforce.p4_reconcile(p4_conn, sync_p4_path)
+
+            p4_conn.run_submit("-d", "Update perforce triggers")
+    except exceptions.PerforceTriggersError as e:
+        log.error(e)

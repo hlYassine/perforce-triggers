@@ -1,5 +1,6 @@
 import typing
 import logging
+import contextlib
 
 from os import environ
 from P4 import P4, P4Exception
@@ -8,6 +9,26 @@ from perforce_triggers import config
 from perforce_triggers import exceptions
 
 log = logging.getLogger(__name__)
+
+
+@contextlib.contextmanager
+def get_triggers_client():
+    client_name = "p4_triggers_wks"
+
+    loc_config = config.get_config().get("location", {})
+    client_view = f"{loc_config['remote']} //{client_name}/..."
+
+    client_root = loc_config["local"]
+
+    p4_conn = create_local_client(
+        client_name,
+        client_root,
+        client_view
+    )
+    try:
+        yield p4_conn
+    finally:
+        p4_conn.disconnect()
 
 
 def get_perforce_connection() -> P4:
@@ -34,7 +55,7 @@ def get_perforce_connection() -> P4:
         )
 
 
-def create_local_client(name, root_abspath, view_list):
+def create_local_client(name, root_abspath, view_list) -> P4:
     p4_conn = get_perforce_connection()
     client = p4_conn.fetch_client(name)
     client["Root"] = root_abspath
@@ -44,6 +65,7 @@ def create_local_client(name, root_abspath, view_list):
     client["LineEnd"] = "local"
     try:
         p4_conn.save_client(client)
+        return p4_conn
     except P4Exception as e:
         raise exceptions.PerforceTriggersError(
             f"Failed to create client '{name}':\n{e.value}"
@@ -60,3 +82,27 @@ def get_triggers() -> typing.Optional[typing.List[str]]:
         )
     except Exception as e:
         raise exceptions.PerforceTriggersError(str(e))
+
+
+def p4_reconcile(p4_conn: P4, p4_path: str):
+    try:
+        # pylint: disable=line-too-long
+        p4_reconcile_args = [
+            "-a",  # reconcile new files that are in root but not tracked by the client
+            "-d",  # reconcile files that have been removed from root but are still in the depot
+            "-e",  # reconcile files that have been modified outside of Perforce
+            "-m",  # minimize costly digest computation on the client by checking file modification times
+            # before checking digests to determine if files have been modified
+            # outside of Perforce
+            p4_path,
+        ]
+        log.info(f"p4 reconcile {' '.join(p4_reconcile_args)}")
+        p4_conn.run_reconcile(p4_reconcile_args)
+    except P4Exception as e:
+        if "no file(s) to reconcile." in e.value:
+            log.warn("no file(s) to reconcile.")
+            pass
+        else:
+            raise exceptions.PerforceTriggersError(
+                f"Failed to run p4 reconcile {e}"
+            )
